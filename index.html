@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Full Stack Project</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            background: #f4f8fb;
+            color: #333;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+        header p {
+            margin-top: 8px;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            resize: none;
+        }
+
+        button {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #3a8dde;
+        }
+
+        .output {
+            background: #f1f6fa;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .success {
+            color: green;
+            margin-top: 10px;
+        }
+
+        .section-title {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #4facfe;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #888;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🚀 Full Stack Project</h1>
+    <p>Hierarchy Builder & Data Processing System</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>✨ Get Started</h2>
+        <p>Enter node relationships in JSON format and generate structured hierarchy output instantly.</p>
+    </div>
+
+    <div class="card">
+        <div class="section-title">📝 Input Data</div>
+
+        <textarea id="inputData" rows="5">
+["A->B","A->C","B->D","A->B","hello"]
+        </textarea>
+
+        <button onclick="sendData()">🚀 Submit</button>
+
+        <div id="error" class="error"></div>
+        <div id="success" class="success"></div>
+    </div>
+
+    <div class="card">
+        <div class="section-title">📊 Output</div>
+        <pre id="output" class="output"></pre>
+    </div>
+
+    <div class="footer">
+        Built with ❤️ for Full Stack Challenge
+    </div>
+
+</div>
+
+<script>
+const API_URL = "http://localhost:3000/bfhl"; // 🔴 change this after deployment
+
+async function sendData() {
+    document.getElementById("error").innerText = "";
+    document.getElementById("output").innerText = "";
+    document.getElementById("success").innerText = "";
+
+    let input;
+    try {
+        input = JSON.parse(document.getElementById("inputData").value);
+    } catch {
+        document.getElementById("error").innerText = "⚠️ Invalid JSON format!";
+        return;
+    }
+
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ data: input })
+        });
+
+        if (!response.ok) {
+            throw new Error("API error");
+        }
+
+        const result = await response.json();
+
+        document.getElementById("output").innerText =
+            JSON.stringify(result, null, 2);
+
+        document.getElementById("success").innerText =
+            "✅ Data processed successfully!";
+
+    } catch (err) {
+        document.getElementById("error").innerText =
+            "❌ Failed to connect to API!";
+    }
+}
+</script>
+
+</body>
+</html>
