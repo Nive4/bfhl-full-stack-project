@@ -2,10 +2,14 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-// ✅ Validate edge
+app.get("/", (req, res) => {
+    res.send("🚀 BFHL API is running successfully!");
+});
+
 function isValidEdge(edge) {
     return /^[A-Z]->[A-Z]$/.test(edge) && edge[0] !== edge[3];
 }
@@ -20,7 +24,6 @@ app.post("/bfhl", (req, res) => {
 
         const seen = new Set();
 
-        // ✅ Step 1: Validate + remove duplicates
         for (let edge of input) {
             if (typeof edge !== "string") {
                 invalidEntries.push(edge);
@@ -44,7 +47,6 @@ app.post("/bfhl", (req, res) => {
             }
         }
 
-        // ✅ Step 2: Build graph
         const graph = {};
         const childrenSet = new Set();
 
@@ -57,7 +59,6 @@ app.post("/bfhl", (req, res) => {
             childrenSet.add(child);
         });
 
-        // ✅ Step 3: Collect nodes
         const nodes = new Set();
         validEdges.forEach(e => {
             const [p, c] = e.split("->");
@@ -65,17 +66,15 @@ app.post("/bfhl", (req, res) => {
             nodes.add(c);
         });
 
-        // ✅ Step 4: Find roots
         let roots = [...nodes].filter(n => !childrenSet.has(n));
 
-        // If no root → cycle case → pick smallest
         if (roots.length === 0 && nodes.size > 0) {
             roots = [Array.from(nodes).sort()[0]];
         }
 
-        // ✅ Step 5: Build tree + detect cycle
         function buildTree(node, visited = new Set()) {
-            if (visited.has(node)) return null; // cycle
+            if (visited.has(node)) return null;
+
             visited.add(node);
 
             let obj = {};
@@ -91,7 +90,6 @@ app.post("/bfhl", (req, res) => {
             return obj;
         }
 
-        // ✅ Step 6: Depth calculation
         function getDepth(tree) {
             if (!tree || Object.keys(tree).length === 0) return 1;
 
@@ -108,7 +106,6 @@ app.post("/bfhl", (req, res) => {
         let maxDepth = 0;
         let largestRoot = "";
 
-        // ✅ Step 7: Process each root
         for (let root of roots) {
             const tree = buildTree(root);
 
@@ -140,7 +137,6 @@ app.post("/bfhl", (req, res) => {
             }
         }
 
-        // ✅ Final response
         res.json({
             user_id: "nivethithasivaraj_04112005",
             email_id: "ns1840@srmist.edu.in",
@@ -161,7 +157,8 @@ app.post("/bfhl", (req, res) => {
     }
 });
 
-// ✅ KEEP SERVER ALIVE
-app.listen(3000, () => {
-    console.log("Server running on port 3000");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log("Server running on port " + PORT);
 });
